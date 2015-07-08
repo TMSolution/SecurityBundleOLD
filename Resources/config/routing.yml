@@ -1,0 +1,13 @@
+core_security_unauthorized:
+    path:     /unauthorized
+    defaults: { _controller: CoreSecurityBundle:SecurityDefault:unauthorized }
+    
+core_security_verify:
+    path:     /verify
+    defaults: { _controller: CoreSecurityBundle:SecurityDefault:read }
+    
+    
+core_security_secuirity_defaultcontroller:
+    resource: "@CoreSecurityBundle/Resources/config/routing/securitydefaultcontroller.yml"
+    prefix:   /sdc
+    type: be_simple_i18n    

@@ -1,0 +1,48 @@
+#core_security_defaultcontroller_rendershow:
+#    pattern:  /{entityName}/rendershow
+#    defaults: { _controller: "CoreSecurityBundle:SecurityDefault:rendershow" }
+    
+#swieta nazwa - nie wolno jej zmieniać PO CO TO?
+core_security_defaultcontroller_read:
+    locales:  { en: "/{entityName}/read", pl: "/{entityName}/lista"} 
+    defaults: { _controller: "CoreSecurityBundle:SecurityDefault:read" }   
+
+#swieta nazwa - nie wolno jej zmieniać
+core_security_defaultcontroller_create:
+    locales:  { en: "/{entityName}/create", pl: "/{entityName}/utworz/"}
+    defaults: { _controller: "CoreSecurityBundle:SecurityDefault:create" }   
+ 
+#swieta nazwa - nie wolno jej zmieniać    
+core_security_defaultcontroller_show:
+    locales:  { en: "/{entityName}/show/{id}", pl:"/{entityName}/pokaz/{id}"}
+    defaults: { _controller: "CoreSecurityBundle:SecurityDefault:show" }   
+  
+#święta nazwa - nie wolno jej zmieniać    
+core_security_defaultcontroller_new:
+    locales:  { en: "/{entityName}/new", pl:"/{entityName}/nowy"}
+    defaults: { _controller: "CoreSecurityBundle:SecurityDefault:new" }   
+  
+#święta nazwa - nie wolno jej zmieniać    
+core_security_defaultcontroller_update:
+    locales:  { en: "/{entityName}/update/{id}", pl:"/{entityName}/aktualizuj/{id}"}
+    defaults: { _controller: "CoreSecurityBundle:SecurityDefault:update" }   
+    
+#święta nazwa - nie wolno jej zmieniać    
+core_security_defaultcontroller_delete:
+    locales:  { en: "/{entityName}/delete/{id}", pl:"/{entityName}/usun/{id}"}
+    defaults: { _controller: "CoreSecurityBundle:SecurityDefault:delete" }       
+
+#święta nazwa - nie wolno jej zmieniać    
+core_security_defaultcontroller_edit:
+    locales:  { en: "/{entityName}/edit/{id}", pl:"/{entityName}/edytuj/{id}"}
+    defaults: { _controller: "CoreSecurityBundle:SecurityDefault:edit" }
+    
+    
+#święta nazwa - nie wolno jej zmieniać
+core_security_defaultcontroller_action_id:
+    pattern:  /{entityName}/{action}/{id}
+    defaults: { _controller: "CoreSecurityBundle:SecurityDefault:action" }
+#święta nazwa - nie wolno jej zmieniać
+core_security_defaultcontroller_action:
+    pattern:  /{entityName}/{action}
+    defaults: { _controller: "CoreSecurityBundle:SecurityDefault:action" }

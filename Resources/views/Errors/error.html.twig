@@ -1,0 +1,35 @@
+{% extends "CoreBaseBundle:Layout1:index.html.twig" %}
+
+
+
+{% block breadCrumb %}
+
+{% endblock breadCrumb %}                  
+
+{% block content -%}
+
+    <div style="padding-bottom: 50px !important;" class="page-header">
+        <div class="col-sm-12">
+
+            <h1>
+                <center> {{ error_message_403 | trans }}</center>
+            </h1>
+
+        </div>
+        
+
+    </div>
+
+   
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="button-row button-rows">
+                <button onclick="history.go(-1)" class="btn btn-default pull-left btn-bottom" type="button">Powrót</button>
+
+            </div>
+
+        </div>
+    </div>   
+
+{% endblock %}
