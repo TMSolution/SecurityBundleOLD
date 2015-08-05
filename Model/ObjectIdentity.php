@@ -2,7 +2,7 @@
 
 namespace Core\SecurityBundle\Model;
 
-use Core\BaseBundle\Model\Model as BaseModel;
+use Core\ModelBundle\Model\Model as BaseModel;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Security\Acl\Domain\ObjectIdentity as SecurityObjectIdentity;
 
