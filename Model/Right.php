@@ -261,7 +261,7 @@ class Right extends BaseModel
     {
         $aclProvider = $this->container->get('security.acl.provider');
         $masterRequest = $this->container->get('request_stack')->getMasterRequest();
-        $objectName = $this->container->get("classmapper")->getEntityClass($masterRequest->attributes->get('entityName'), $masterRequest->getLocale());
+        $objectName = $this->container->get("classmapperservice")->getEntityClass($masterRequest->attributes->get('entityName'), $masterRequest->getLocale());
 
         $classIdentity = new SecurityObjectIdentity($objectName, 'class');
         $user = $this->container->get('security.context')->getToken()->getUser();
