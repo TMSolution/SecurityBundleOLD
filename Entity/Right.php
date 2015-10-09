@@ -42,11 +42,11 @@ class Right
     protected $user;
 
     /**
-     * @ORM\ManyToOne(targetEntity="TMSolution\UserBundle\Entity\Group")
-     * @ORM\JoinColumn(name="group_id", referencedColumnName="id")
+     * @ORM\ManyToOne(targetEntity="TMSolution\UserBundle\Entity\Role")
+     * @ORM\JoinColumn(name="role_id", referencedColumnName="id")
      *
      */
-    protected $group;
+    protected $role;
 
     /**
      * @ORM\ManyToOne(targetEntity="Core\SecurityBundle\Entity\ObjectIdentity")
@@ -114,14 +114,14 @@ class Right
         return $this;
     }
 
-    public function getGroup()
+    public function getRole()
     {
-        return $this->group;
+        return $this->role;
     }
 
-    public function setGroup(\TMSolution\UserBundle\Entity\Group $group = null)
+    public function setRole(\TMSolution\UserBundle\Entity\Role $role = null)
     {
-        $this->group = $group;
+        $this->role = $role;
         return $this;
     }
 
