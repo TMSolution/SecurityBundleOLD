@@ -30,7 +30,7 @@ class AccessDeniedListener
         if (get_class($event->getException()) == 'Symfony\Component\Security\Acl\Exception\NoAceFoundException') {
 
             try {
-                //$this->backWithMessage($event);
+                $this->backWithMessage($event);
                 $this->accessDenied($event);
             } catch (\Exception $e) {
                 $this->accessDenied($event);

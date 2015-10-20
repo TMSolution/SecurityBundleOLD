@@ -32,9 +32,10 @@ class AnnotationDriver
     {
 //        $aclProvider = $this->container->get('security.acl.provider');
 //        $masterRequest = $this->container->get('request_stack')->getMasterRequest();
-//        $objectName = $this->container->get("classmapper")->getEntityClass($masterRequest->attributes->get('entityName'), $masterRequest->getLocale());
+//        $objectName = $this->container->get("classmapperservice")->getEntityClass($masterRequest->attributes->get('entityName'), $masterRequest->getLocale());
 //
-//        $classIdentity = new ObjectIdentity($objectName, 'class');
+//        $route = $this->container->get('request')->get('_route');
+//        $classIdentity = new ObjectIdentity($route, 'route');
 //        $user = $this->container->get('security.context')->getToken()->getUser();
 //
 //        $acl = $aclProvider->findAcl($classIdentity);   
@@ -52,7 +53,7 @@ class AnnotationDriver
 //            $securityIdentities[] = new RoleSecurityIdentity($role);
 //        }
 //        $acl->isGranted($rights, $securityIdentities);
-        
+//        
     }
 
     /**
