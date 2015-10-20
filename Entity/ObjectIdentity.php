@@ -28,6 +28,12 @@ class ObjectIdentity
 
     /**
      *
+     * @ORM\Column(type="string",length=200)
+     */
+    protected $displayName;
+    
+    /**
+     *
      * @ORM\Column(type="boolean",options={"default":true})
      */
     protected $isBusinessObject;
@@ -115,6 +121,28 @@ class ObjectIdentity
     }
 
     /**
+     * Get display name
+     *
+     * @return string 
+     */
+    public function getDisplayName()
+    {
+        return $this->displayName;
+    }
+    
+    /* Set display name
+     *
+     * @param string $name
+     * @return ObjectIdentity
+     */
+    public function setDisplayName($name)
+    {
+        $this->displayName = $name;
+
+        return $this;
+    }
+
+    /**
      * Get name
      *
      * @return string 
@@ -123,6 +151,7 @@ class ObjectIdentity
     {
         return $this->name;
     }
+    
 
     /**
      * Set isBusinessObject

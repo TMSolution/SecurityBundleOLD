@@ -16,13 +16,14 @@ class Right extends BaseModel
     {
 
         $modelFactory = $this->container->get("model_factory");
-        $objectIdentityModel = $modelFactory->getModel('Core\SecurityBundle\Entity\ObjectIdentity');
+        $objectIdentityModel = $modelFactory->getModel('Core\\SecurityBundle\\Entity\\ObjectIdentity');
 
 
         $arrayCollection = new ArrayCollection();
         foreach ($records as $record) {
-
-            $objectIdentity = $objectIdentityModel->findOneBy(['id' => $record['module_id'], 'objectIdentityType' => 2]);
+            
+            $objectIdentity = $objectIdentityModel->findOneBy(['id' => $record['module_id'], 'objectIdentityType' => 5]);
+            
             if ($objectIdentity) {
 
                 $entity = $this->getEntity();
@@ -38,25 +39,25 @@ class Right extends BaseModel
         $this->createEntities($arrayCollection, true);
     }
 
-    public function createGroupRights($group, $records)
+    public function createRoleRights($role, $records)
     {
 
         $modelFactory = $this->container->get("model_factory");
-        $objectIdentityModel = $modelFactory->getModel('Core\SecurityBundle\Entity\ObjectIdentity');
+        $objectIdentityModel = $modelFactory->getModel('Core\\SecurityBundle\\Entity\\ObjectIdentity');
 
 
         $arrayCollection = new ArrayCollection();
         foreach ($records as $record) {
 
-            $objectIdentity = $objectIdentityModel->findOneBy(['id' => $record['module_id'], 'objectIdentityType' => 2]);
+            $objectIdentity = $objectIdentityModel->findOneBy(['id' => $record['module_id'], 'objectIdentityType' => 5]);
             if ($objectIdentity) {
 
                 $entity = $this->getEntity();
                 $entity->setObjectIdentity($objectIdentity);
-                $entity->setGroup($group);
+                $entity->setRole($role);
                 $maskBuilder = $this->setRights($entity, $record);
                 $arrayCollection[] = $entity;
-                $this->insertAceForRole($entity, $group, $maskBuilder);
+                $this->insertAceForRole($entity, $role, $maskBuilder);
             }
         }
 
@@ -67,8 +68,7 @@ class Right extends BaseModel
     {
 
         $modelFactory = $this->container->get("model_factory");
-        $objectIdentityModel = $modelFactory->getModel('Core\SecurityBundle\Entity\ObjectIdentity');
-
+        $objectIdentityModel = $modelFactory->getModel('Core\\SecurityBundle\\Entity\\ObjectIdentity');
 
         $arrayCollection = new ArrayCollection();
         foreach ($records as $record) {
@@ -90,9 +90,8 @@ class Right extends BaseModel
                 $this->update($entity);
             }
 
-            $this->insertAceForUser($entity, $user, $maskBuilder);
+            //$this->insertAceForUser($entity, $user, $maskBuilder);
         }
-
 
 
         $this->createEntities($arrayCollection);
@@ -183,42 +182,39 @@ class Right extends BaseModel
       }
       } */
 
-    public function updateGroupRights($group, $records)
+    public function updateRoleRights($role, $records)
     {
 
 
         $modelFactory = $this->container->get("model_factory");
-        $objectIdentityModel = $modelFactory->getModel('Core\SecurityBundle\Entity\ObjectIdentity');
+        $objectIdentityModel = $modelFactory->getModel('Core\\SecurityBundle\\Entity\\ObjectIdentity');
         $arrayCollection = new ArrayCollection();
         foreach ($records as $record) {
-
-            $entity = $this->getRepository()->findOneBy(['group' => $group->getId(), 'objectidentity' => $record['module_id']]);
-
+            $entity = $this->getRepository()->findOneBy(['role' => $role->getId(), 'objectidentity' => $record['module_id']]);
             if (empty($entity)) {
                 $objectIdentity = $objectIdentityModel->findOneById($record['module_id']);
                 $entity = $this->getEntity();
-
                 $entity->setObjectIdentity($objectIdentity);
-                $entity->setGroup($group);
+                $entity->setRole($role);
                 $maskBuilder = $this->setRights($entity, $record);
                 $arrayCollection[] = $entity;
             } else {
-                $entity->setGroup($group);
+                $entity->setRole($role);
                 $maskBuilder = $this->setRights($entity, $record);
                 $this->update($entity);
             }
-            $this->insertAceForRole($entity, $group, $maskBuilder);
+            $this->insertAceForRole($entity, $role, $maskBuilder);
         }
 
         $this->createEntities($arrayCollection);
         $this->flush();
     }
 
-    protected function insertAceForRole($entity, $group, $maskBuilder)
+    protected function insertAceForRole($entity, $role, $maskBuilder)
     {
 
         $aclProvider = $this->container->get('security.acl.provider');
-        $securityIdentity = new RoleSecurityIdentity($group->getRole());
+        $securityIdentity = new RoleSecurityIdentity($role->getRole());
         $acl = $this->findAcl($entity->getObjectIdentity());
 
         /*
