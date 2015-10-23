@@ -90,7 +90,7 @@ class Right extends BaseModel
                 $this->update($entity);
             }
 
-            //$this->insertAceForUser($entity, $user, $maskBuilder);
+            $this->insertAceForUser($entity, $user, $maskBuilder);
         }
 
 

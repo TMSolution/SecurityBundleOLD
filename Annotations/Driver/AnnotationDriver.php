@@ -9,6 +9,7 @@ use Core\SecurityBundle\Annotations\Permissions; //In this class I check corresp
 use Symfony\Component\HttpFoundation\Response; // For example I will throw 403, if access denied
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Acl\Domain\RoleSecurityIdentity;
+use Symfony\Component\Security\Acl\Domain\UserSecurityIdentity;
 use Symfony\Component\Security\Acl\Domain\ObjectIdentity;
 use Symfony\Component\Security\Acl\Permission\MaskBuilder;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -30,30 +31,45 @@ class AnnotationDriver
     //@todo:obsłużyć wszystkie możliwe wyjątki
     public function checkRights($rights)
     {
-//        $aclProvider = $this->container->get('security.acl.provider');
-//        $masterRequest = $this->container->get('request_stack')->getMasterRequest();
-//        $objectName = $this->container->get("classmapperservice")->getEntityClass($masterRequest->attributes->get('entityName'), $masterRequest->getLocale());
-//
-//        $route = $this->container->get('request')->get('_route');
-//        $classIdentity = new ObjectIdentity($route, 'route');
-//        $user = $this->container->get('security.context')->getToken()->getUser();
-//
-//        $acl = $aclProvider->findAcl($classIdentity);   
-//        if ($this->type == "module") {
-//            $parentAcl = $acl->getParentAcl();
-//            if ($parentAcl) {
-//                $acl = $parentAcl;
-//            } else {
-//                throw new \Exception("Brak rodzica wskazanego obiektu");
-//            }
-//        }
-//        
-//        $securityIdentities = [];
-//        foreach ($user->getRoles() as $role) {
-//            $securityIdentities[] = new RoleSecurityIdentity($role);
-//        }
-//        $acl->isGranted($rights, $securityIdentities);
-//        
+        
+        exit();
+        $aclProvider = $this->container->get('security.acl.provider');
+        $masterRequest = $this->container->get('request_stack')->getMasterRequest();
+        $objectName = $this->container->get("classmapperservice")->getEntityClass($masterRequest->attributes->get('entityName'), $masterRequest->getLocale());
+
+        $route = $this->container->get('request')->get('_route');
+        $pathInfo = $this->container->get('request')->getPathInfo();
+        $pathInfo = \trim($pathInfo, '/');        
+        $pathInfo = str_replace('/', "_", $pathInfo);
+        $nodes = \explode('_', $pathInfo);
+        
+        if (isset($nodes[0]) && $nodes[0] !== 'panel' && count($nodes) == 1) {
+            return;
+        }
+        
+        $classIdentity = new ObjectIdentity(
+            implode('_', array_slice($nodes, 0, 2)),
+            'link'
+        );        
+   
+        
+        // throws AclNotFoundException
+        $acl = $aclProvider->findAcl($classIdentity);   
+//       
+//        dump($classIdentity);
+//        exit();
+//       
+        $user = $this->container->get('security.context')->getToken()->getUser();        
+        
+        $securityIdentities = [];
+        $securityIdentities[]= new UserSecurityIdentity($user->getEmail(), 'TMSolution\UserBundle\Entity\User');
+        
+        foreach ($user->getRoles() as $role) {
+            $securityIdentities[] = new RoleSecurityIdentity($role);
+        }
+
+       $acl->isGranted($rights, $securityIdentities);
+        
     }
 
     /**
