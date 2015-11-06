@@ -31,11 +31,12 @@ class AnnotationDriver
     //@todo:obsłużyć wszystkie możliwe wyjątki
     public function checkRights($rights)
     {
-        return;
+        
+        //return;
         $aclProvider = $this->container->get('security.acl.provider');
         $masterRequest = $this->container->get('request_stack')->getMasterRequest();
         $objectName = $this->container->get("classmapperservice")->getEntityClass($masterRequest->attributes->get('entityName'), $masterRequest->getLocale());
-
+        
         $route = $this->container->get('request')->get('_route');
         $pathInfo = $this->container->get('request')->getPathInfo();
         $pathInfo = \trim($pathInfo, '/');        
@@ -45,19 +46,14 @@ class AnnotationDriver
         if (isset($nodes[0]) && $nodes[0] !== 'panel' && count($nodes) == 1) {
             return;
         }
-        
+
         $classIdentity = new ObjectIdentity(
             implode('_', array_slice($nodes, 0, 2)),
             'link'
         );        
-   
         
         // throws AclNotFoundException
-        $acl = $aclProvider->findAcl($classIdentity);   
-//       
-//        dump($classIdentity);
-//        exit();
-//       
+        $acl = $aclProvider->findAcl($classIdentity);          
         $user = $this->container->get('security.context')->getToken()->getUser();        
         
         $securityIdentities = [];
@@ -66,6 +62,9 @@ class AnnotationDriver
         foreach ($user->getRoles() as $role) {
             $securityIdentities[] = new RoleSecurityIdentity($role);
         }
+        
+        dump($securityIdentities);
+
 
        $acl->isGranted($rights, $securityIdentities);
         

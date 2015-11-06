@@ -126,15 +126,22 @@ class ObjectIdentity extends BaseModel {
     }
 
     public function getUserRights($user) {
-
         $qb = $this->getManager()->createQuery('SELECT objectidentity,right FROM Core\SecurityBundle\Entity\ObjectIdentity objectidentity LEFT JOIN Core\SecurityBundle\Entity\Right right WITH right.objectidentity = objectidentity and right.user = :user WHERE objectidentity.objectIdentityType = 5')
                 ->setParameter('user', $user);
         $result = $qb->getScalarResult();
-
-
         return $result;
     }
 
+    public function getRoleRights($role) {
+        $qb = $this->getManager()->createQuery('SELECT objectidentity,right FROM Core\SecurityBundle\Entity\ObjectIdentity objectidentity LEFT JOIN Core\SecurityBundle\Entity\Right right WITH right.objectidentity = objectidentity and right.role = :role WHERE objectidentity.objectIdentityType = 5')
+                ->setParameter('role', $role);
+        $result = $qb->getScalarResult();
+        return $result;
+    }
+    
+    /**
+     * @depreceated use getRoleRights
+     */
     public function getGroupRights($group) {
         $qb = $this->getManager()->createQuery('SELECT objectidentity,right FROM Core\SecurityBundle\Entity\ObjectIdentity objectidentity LEFT JOIN Core\SecurityBundle\Entity\Right right WITH right.objectidentity = objectidentity  and right.group = :group WHERE objectidentity.objectIdentityType = 2')
                 ->setParameter('group', $group);

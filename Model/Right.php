@@ -185,7 +185,6 @@ class Right extends BaseModel
     public function updateRoleRights($role, $records)
     {
 
-
         $modelFactory = $this->container->get("model_factory");
         $objectIdentityModel = $modelFactory->getModel('Core\\SecurityBundle\\Entity\\ObjectIdentity');
         $arrayCollection = new ArrayCollection();

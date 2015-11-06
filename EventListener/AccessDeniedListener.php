@@ -26,9 +26,7 @@ class AccessDeniedListener
 
     public function onKernelException(GetResponseForExceptionEvent $event)
     {
-
         if (get_class($event->getException()) == 'Symfony\Component\Security\Acl\Exception\NoAceFoundException') {
-
             try {
                 $this->backWithMessage($event);
                 $this->accessDenied($event);
