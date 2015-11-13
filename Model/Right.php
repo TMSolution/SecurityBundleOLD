@@ -18,12 +18,10 @@ class Right extends BaseModel
         $modelFactory = $this->container->get("model_factory");
         $objectIdentityModel = $modelFactory->getModel('Core\\SecurityBundle\\Entity\\ObjectIdentity');
 
-
         $arrayCollection = new ArrayCollection();
         foreach ($records as $record) {
             
-            $objectIdentity = $objectIdentityModel->findOneBy(['id' => $record['module_id'], 'objectIdentityType' => 5]);
-            
+            $objectIdentity = $objectIdentityModel->findOneBy(['id' => $record['module_id'], 'objectIdentityType' => 5]);            
             if ($objectIdentity) {
 
                 $entity = $this->getEntity();
@@ -44,7 +42,6 @@ class Right extends BaseModel
 
         $modelFactory = $this->container->get("model_factory");
         $objectIdentityModel = $modelFactory->getModel('Core\\SecurityBundle\\Entity\\ObjectIdentity');
-
 
         $arrayCollection = new ArrayCollection();
         foreach ($records as $record) {
@@ -68,28 +65,21 @@ class Right extends BaseModel
     {
 
         $modelFactory = $this->container->get("model_factory");
-        $objectIdentityModel = $modelFactory->getModel('Core\\SecurityBundle\\Entity\\ObjectIdentity');
-
+        $objectIdentityModel = $modelFactory->getModel('Core\\SecurityBundle\\Entity\\ObjectIdentity'); 
         $arrayCollection = new ArrayCollection();
         foreach ($records as $record) {
-
             $entity = $this->getRepository()->findOneBy(['user' => $user->getId(), 'objectidentity' => $record['module_id']]);
-
             if (empty($entity)) {
                 $objectIdentity = $objectIdentityModel->findOneById($record['module_id']);
                 $entity = $this->getEntity();
-
                 $entity->setObjectIdentity($objectIdentity);
                 $entity->setUser($user);
-                $maskBuilder = $this->setRights($entity, $record);
                 $arrayCollection[] = $entity;
             } else {
-
                 $entity->setUser($user);
-                $maskBuilder = $this->setRights($entity, $record);
                 $this->update($entity);
             }
-
+            $maskBuilder = $this->setRights($entity, $record);
             $this->insertAceForUser($entity, $user, $maskBuilder);
         }
 
@@ -102,7 +92,7 @@ class Right extends BaseModel
     {
 
         $maskBuilder = new MaskBuilder();
-
+        
         if ($this->hasKey('viewRight', $record)) {
             $entity->setViewRight(true);
             $maskBuilder->add(MaskBuilder::MASK_VIEW);
@@ -132,6 +122,7 @@ class Right extends BaseModel
             $entity->setMasterRight(false);
             $maskBuilder->remove(MaskBuilder::MASK_MASTER);
         }
+        
         return $maskBuilder;
     }
 
@@ -235,8 +226,17 @@ class Right extends BaseModel
     {
         $aclProvider = $this->container->get('security.acl.provider');
         $securityIdentity = new UserSecurityIdentity($user->getEmail(), 'TMSolution\UserBundle\Entity\User');
+//        dump("SECURITY IDENTITY");
+//        dump($securityIdentity);
         $acl = $this->findAcl($entity->getObjectIdentity());
-        $acl->insertObjectAce($securityIdentity, $maskBuilder->get());
+//        dump("ACL ID");
+//        dump($acl->getId());
+        if (!$this->updateAce($acl, $securityIdentity, $maskBuilder->get())) {
+
+            $acl->insertObjectAce($securityIdentity, $maskBuilder->get());
+        }                
+//        $acl->insertObjectAce($securityIdentity, $maskBuilder->get());
+
         $aclProvider->updateAcl($acl);
     }
 

@@ -42,7 +42,7 @@ class Right
     protected $user;
 
     /**
-     * @ORM\ManyToOne(targetEntity="TMSolution\UserBundle\Entity\Role")
+     * @ORM\ManyToOne(targetEntity="Core\SecurityBundle\Entity\Role")
      * @ORM\JoinColumn(name="role_id", referencedColumnName="id")
      *
      */

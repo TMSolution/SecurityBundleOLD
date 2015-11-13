@@ -31,8 +31,7 @@ class AnnotationDriver
     //@todo:obsłużyć wszystkie możliwe wyjątki
     public function checkRights($rights)
     {
-        
-        //return;
+        return;
         $aclProvider = $this->container->get('security.acl.provider');
         $masterRequest = $this->container->get('request_stack')->getMasterRequest();
         $objectName = $this->container->get("classmapperservice")->getEntityClass($masterRequest->attributes->get('entityName'), $masterRequest->getLocale());
@@ -52,22 +51,20 @@ class AnnotationDriver
             'link'
         );        
         
-        // throws AclNotFoundException
-        $acl = $aclProvider->findAcl($classIdentity);          
+//        dump($classIdentity);
+//        exit();
+//        throws AclNotFoundException
+        
+        $acl = $aclProvider->findAcl($classIdentity); 
         $user = $this->container->get('security.context')->getToken()->getUser();        
         
         $securityIdentities = [];
         $securityIdentities[]= new UserSecurityIdentity($user->getEmail(), 'TMSolution\UserBundle\Entity\User');
-        
+    
         foreach ($user->getRoles() as $role) {
-            $securityIdentities[] = new RoleSecurityIdentity($role);
+            $securityIdentities[] = new RoleSecurityIdentity($role->getRole());
         }
-        
-        dump($securityIdentities);
-
-
-       $acl->isGranted($rights, $securityIdentities);
-        
+        $acl->isGranted($rights, $securityIdentities);        
     }
 
     /**
