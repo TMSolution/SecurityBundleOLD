@@ -8,10 +8,31 @@ use Symfony\Component\Security\Acl\Domain\RoleSecurityIdentity;
 use Symfony\Component\Security\Acl\Domain\UserSecurityIdentity;
 use Symfony\Component\Security\Acl\Domain\ObjectIdentity as SecurityObjectIdentity;
 use Symfony\Component\Security\Acl\Permission\MaskBuilder;
+use Core\SecurityBundle\Context\RightTokenInterface;
+use FOS\UserBundle\Model\UserInterface;
 
 class Right extends BaseModel
 {
 
+    public function findRight(UserInterface $user, RightTokenInterface $token) {        
+        
+        $objectIdentity =
+                $this->container
+                ->get('model_factory')
+                ->getModel('Core\SecurityBundle\Entity\ObjectIdentity')
+                ->findOneBy(['name' => $token->getName()]);
+        
+        return $this->getQueryBuilder('u')
+            ->where('u.objectidentity = :oi')
+            ->andWhere('u.user = :usr OR role IN (:roles)')
+            ->setParameter('usr', $user)
+            ->setParameter('oi', $objectIdentity)  
+            ->setParameter('roles', $user->getRoles())                  
+            ->getQuery()
+            ->getResult();
+        
+    }
+    
     public function createUserRights($user, $records)
     {
 
