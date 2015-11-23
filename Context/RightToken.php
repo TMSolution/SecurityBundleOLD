@@ -10,7 +10,7 @@ class RightToken implements RightTokenInterface
     {
         $this->name = $name;
     }
-    
+
     public function getName()
     {
         return $this->name;

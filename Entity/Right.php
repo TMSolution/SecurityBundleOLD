@@ -54,6 +54,12 @@ class Right
      */
     protected $objectidentity;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="Core\SecurityBundle\Entity\Scope")
+     */
+    protected $scope;
+
+
     public function getId()
     {
         return $this->id;
@@ -119,14 +125,22 @@ class Right
         return $this->role;
     }
 
-    public function setRole(\TMSolution\UserBundle\Entity\Role $role = null)
+    public function setRole(Role $role = null)
     {
         $this->role = $role;
         return $this;
     }
 
-   
-    
+    public function getScope()
+    {
+        return $this->scope;
+    }
+
+    public function setScope(Scope $scope = null)
+    {
+        $this->scope = $scope;
+        return $this;
+    }
     
     public function getObjectIdentity()
     {

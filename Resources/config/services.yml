@@ -2,11 +2,12 @@ services:
     security_right_context:
         class: Core\SecurityBundle\Context\RightContext
         arguments: [@service_container] 
-    
-    some_annotation_driver: 
+
+    some_annotation_driver:
        class: Core\SecurityBundle\Annotations\Driver\AnnotationDriver
        tags: [{name: kernel.event_listener, event: kernel.controller, method: onKernelController}] #Point event
        arguments: [@annotation_reader,@service_container,object] # mozliwe opcje: object, module
+
     kernel.listener.access_denied:
         class: Core\SecurityBundle\EventListener\AccessDeniedListener
         tags:

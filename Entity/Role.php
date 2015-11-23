@@ -22,12 +22,12 @@ class Role implements RoleInterface
     public $id;
     
     /**
-     * @ORM\Column(type="string", name="role", unique=true, length=70)
+     * @ORM\Column(type="string", name="scope", unique=true, length=70)
      */
     private $role;
     
     /**
-     * Populate the role field
+     * Populate the scope field
      * @param string $role ROLE_FOO etc
      */
     public function __construct($role)
@@ -46,7 +46,7 @@ class Role implements RoleInterface
     }
     
     /**
-     * Return the role field.
+     * Return the scope field.
      * @return string 
      */
     public function getRole()
@@ -62,7 +62,7 @@ class Role implements RoleInterface
     }
 
     /**
-     * Return the role field.
+     * Return the scope field.
      * @return string 
      */
     public function __toString()

@@ -3,20 +3,22 @@
 namespace Core\SecurityBundle\Model;
 
 use Core\ModelBundle\Model\Model as BaseModel;
+use Core\SecurityBundle\Entity\Right as RightEntity;
 use Doctrine\Common\Collections\ArrayCollection;
+use FOS\UserBundle\Model\UserInterface;
 use Symfony\Component\Security\Acl\Domain\ObjectIdentity as SecurityObjectIdentity;
 
-class ObjectIdentity extends BaseModel {
-
+class ObjectIdentity extends BaseModel
+{
     /**
      * Get all resources with identity 'link'
-     * 
+     *
      * @return array
      */
-    public function getLinks() {
-
+    public function getLinks()
+    {
         $repo = $this->getRepository();
-        $rootNode = $repo->findOneById(1);        
+        $rootNode = $repo->findOneById(1);
         $query = $repo->getNodesHierarchyQueryBuilder(
                         $rootNode, false, [], false
                 )
@@ -35,17 +37,20 @@ class ObjectIdentity extends BaseModel {
 //Przeciążyć metody save, delete, update?
 //uprawnienia musza być zapisywane natychmiast
 
-    protected function checkExecuteImmediately($executeImmediately) {
+    protected function checkExecuteImmediately($executeImmediately)
+    {
         if (false == $executeImmediately) {
             throw new \InvalidArgumentException('Security operations must be save immediately,  $executeImmediately parameter must be set as true');
         }
     }
 
-    protected function createClassIdentity($entityObject) {
+    protected function createClassIdentity($entityObject)
+    {
         return new SecurityObjectIdentity($entityObject->getName(), $entityObject->getObjectIdentityType()->getName());
     }
 
-    protected function createACL($entityObject) {
+    protected function createACL($entityObject)
+    {
         $aclProvider = $this->container->get('security.acl.provider');
         $classIdentity = $this->createClassIdentity($entityObject);
 
@@ -61,16 +66,14 @@ class ObjectIdentity extends BaseModel {
 
 
         if ($parentObject) {
-
             $parentAcl = $aclProvider->findAcl($this->createClassIdentity($parentObject));
             $acl->setParentAcl($parentAcl);
             $aclProvider->updateAcl($acl);
         }
     }
 
-    protected function updateACL($entityObject) {
-
-
+    protected function updateACL($entityObject)
+    {
         $aclProvider = $this->container->get('security.acl.provider');
 
         //wyznaczenie identyfikatora dla klasy
@@ -85,8 +88,8 @@ class ObjectIdentity extends BaseModel {
           } */
     }
 
-    public function create($entityObject, $executeImmediately = false, $logOperation = false, $checkRights = true) {
-
+    public function create($entityObject, $executeImmediately = false, $logOperation = false, $checkRights = true)
+    {
         $this->checkExecuteImmediately($executeImmediately);
         parent::create($entityObject, false, $logOperation, $checkRights);
         $this->createACL($entityObject);
@@ -95,7 +98,8 @@ class ObjectIdentity extends BaseModel {
         }
     }
 
-    public function createEntities(ArrayCollection $arrayCollection, $executeImmediately = false, $checkRights = true) {
+    public function createEntities(ArrayCollection $arrayCollection, $executeImmediately = false, $checkRights = true)
+    {
         $this->checkExecuteImmediately($executeImmediately);
         parent::createEntities($arrayCollection, $executeImmediately, $checkRights);
         foreach ($arrayCollection as $entityObject) {
@@ -103,64 +107,138 @@ class ObjectIdentity extends BaseModel {
         }
     }
 
-    public function delete($entityObject, $executeImmediately = false, $logOperation = false, $checkRights = true) {
+    public function delete($entityObject, $executeImmediately = false, $logOperation = false, $checkRights = true)
+    {
         $this->checkExecuteImmediately($executeImmediately);
         parent::delete($entityObject, $executeImmediately, $logOperation, $checkRights);
         //@todo delete object identity
     }
 
-    public function update($entityObject, $executeImmediately = true, $logOperation = false, $checkRights = true) {
+    public function update($entityObject, $executeImmediately = true, $logOperation = false, $checkRights = true)
+    {
         $this->checkExecuteImmediately($executeImmediately);
         parent::update($entityObject, $executeImmediately, $logOperation, $checkRights);
         $this->updateACL($entityObject);
     }
 
-    public function synchrozieObjectIdentity() {
+    public function synchrozieObjectIdentity()
+    {
         foreach ($this->getRepository()->findBy(array(), array('parent' => 'asc')) as $entityObject) {
             $this->createACL($entityObject);
         }
     }
 
-    public function getModules() {
+    public function getModules()
+    {
         return $this->findBy(['objectIdentityType' => 2]);
     }
 
-    public function getUserRights($user) {
-        $qb = $this->getManager()->createQuery('SELECT objectidentity,right FROM Core\SecurityBundle\Entity\ObjectIdentity objectidentity LEFT JOIN Core\SecurityBundle\Entity\Right right WITH right.objectidentity = objectidentity and right.user = :user WHERE objectidentity.objectIdentityType = 5')
-                ->setParameter('user', $user);
-        $result = $qb->getScalarResult();
-        return $result;
+
+    /**
+     * Get right matrix
+     *
+     * Join role and user rights.
+     *
+     * @param UserInterface $user
+     * @return array right Matrix
+     */
+    public function getRightMatrix(UserInterface $user, array $roles)
+    {
+        $rightModel = $this->getModelFactory()->getModel('Core\SecurityBundle\Entity\Right');
+        $rights = $rightModel->getQueryBuilder()
+            ->where('u.user = :usr')
+            ->orWhere('u.role in (:role)')
+            ->setParameter('usr', $user)
+            ->setParameter('role', $roles)
+            ->getQuery()
+            ->getResult();
+
+        $rightSet = [];
+        foreach ($rights as $right) {
+            $item = $this->createRightSetItem($right);
+            if (isset($rightSet[$item['objectidentity_name']])) {
+                $rightSetItem = $rightSet[$item['objectidentity_name']];
+                if ($rightSetItem['right_viewRight'] === true) {
+                    $rightSet[$item['objectidentity_name']]['right_viewRight'] = true;
+                }
+                if ($rightSetItem['right_editRight'] === true) {
+                    $rightSet[$item['objectidentity_name']]['right_editRight'] = true;
+                }
+                if ($rightSetItem['right_masterRight']['right_masterRight'] === true) {
+                    $rightSet[$item['objectidentity_name']] = true;
+                }
+                if ($rightSetItem['right_scope_mask'] < $item['right_scope_mask']) {
+                    $rightSet[$item['objectidentity_name']]['right_scope_mask'] = $item['right_scope_mask'];
+                    $rightSet[$item['objectidentity_name']]['right_scope_id'] = $item['right_scope_id'];
+                }
+                continue;
+            }
+            $rightSet[$item['objectidentity_name']] = $item;
+        }
+
+        return $rightSet;
     }
 
-    public function getRoleRights($role) {
-        $qb = $this->getManager()->createQuery('SELECT objectidentity,right FROM Core\SecurityBundle\Entity\ObjectIdentity objectidentity LEFT JOIN Core\SecurityBundle\Entity\Right right WITH right.objectidentity = objectidentity and right.role = :role WHERE objectidentity.objectIdentityType = 5')
-                ->setParameter('role', $role);
-        $result = $qb->getScalarResult();
-        return $result;
+
+    public function getUserRights($user)
+    {
+        $rights = $this->getModelFactory()->getModel('Core\SecurityBundle\Entity\Right')->findBy(['user' => $user]);
+        $rightSet = [];
+        foreach ($rights as $right) {
+            $rightSet[] = $this->createRightSetItem($right);
+        }
+        return $rightSet;
+    }
+
+    public function getRoleRights($role)
+    {
+        $rights = $this->getModelFactory()->getModel('Core\SecurityBundle\Entity\Right')->findBy(['role' => $role]);
+        dump($rights);
+        $rightSet = [];
+        foreach ($rights as $right) {
+            $rightSet[] = $this->createRightSetItem($right);
+        }
+        return $rightSet;
+    }
+
+    protected function createRightSetItem(RightEntity $right)
+    {
+        $rightSetItem = [];
+        $rightSetItem["objectidentity_id"] = $right->getObjectIdentity()->getId();
+        $rightSetItem["objectidentity_name"] = $right->getObjectIdentity()->getName();
+        $rightSetItem["objectidentity_displayName"] = $right->getObjectIdentity()->getDisplayName();
+        $rightSetItem["right_id"] = $right->getId();
+        $rightSetItem["right_viewRight"] = $right->getViewRight();
+        $rightSetItem["right_editRight"] = $right->getEditRight();
+        $rightSetItem["right_masterRight"] = $right->getMasterRight();
+        $rightSetItem["right_scope_id"] = $right->getScope()->getId();
+        $rightSetItem["right_scope_mask"] = $right->getScope()->getMask();
+
+        return $rightSetItem;
     }
     
     /**
      * @depreceated use getRoleRights
      */
-    public function getGroupRights($group) {
+    public function getGroupRights($group)
+    {
         $qb = $this->getManager()->createQuery('SELECT objectidentity,right FROM Core\SecurityBundle\Entity\ObjectIdentity objectidentity LEFT JOIN Core\SecurityBundle\Entity\Right right WITH right.objectidentity = objectidentity  and right.group = :group WHERE objectidentity.objectIdentityType = 2')
                 ->setParameter('group', $group);
         $result = $qb->getScalarResult();
         return $result;
     }
 
-    protected $enitityClassNames = Array();
-    protected $enitityClassNamesFromDb = Array();
+    protected $enitityClassNames = array();
+    protected $enitityClassNamesFromDb = array();
     protected $allMetadata;
-    protected $loadedObjectIdent = Array();
+    protected $loadedObjectIdent = array();
 
-    public function updateObjectIdentityList() {
+    public function updateObjectIdentityList()
+    {
         $this->getObjectIdentityNames();
         $this->getObjectIdentityNamesFromDb();
         foreach ($this->enitityClassNames as $enitityClassName) {
-
             if (!array_search($enitityClassName, $this->enitityClassNamesFromDb)) {
-
                 $entityObject = $this->getEntity();
                 $entityObject->setName($enitityClassName);
                 $entityObject->setIsBusinessObject(true);
@@ -179,8 +257,8 @@ class ObjectIdentity extends BaseModel {
         return $this->loadedObjectIdent;
     }
 
-    public function getObjectIdentityNames() {
-
+    public function getObjectIdentityNames()
+    {
         $this->allMetadata = $this->manager->getMetadataFactory()->getAllMetadata();
         foreach ($this->allMetadata as $m) {
             $nameArr = explode('\\', $m->getName());
@@ -192,9 +270,8 @@ class ObjectIdentity extends BaseModel {
         return $this->enitityClassNames;
     }
 
-    public function getObjectIdentityNamesFromDb($onlyBusinessClasses = false) {
-
-
+    public function getObjectIdentityNamesFromDb($onlyBusinessClasses = false)
+    {
         if ($onlyBusinessClasses) {
             $query = $this->getManager()->createQuery("SELECT s.name FROM Core\SecurityBundle\Entity\ObjectIdentity s WHERE s.isBusinessObject=true ORDER BY s.name ASC ");
         } else {
@@ -207,12 +284,11 @@ class ObjectIdentity extends BaseModel {
         $result = $query->getResult(\Doctrine\ORM\Query::HYDRATE_ARRAY);
 
 
-        $this->enitityClassNamesFromDb = array_map(function($value) {
+        $this->enitityClassNamesFromDb = array_map(function ($value) {
             return $value['name'];
         }, $result);
 
 
         return $this->enitityClassNamesFromDb;
     }
-
 }

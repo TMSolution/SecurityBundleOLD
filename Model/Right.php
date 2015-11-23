@@ -4,6 +4,7 @@ namespace Core\SecurityBundle\Model;
 
 use Core\ModelBundle\Model\Model as BaseModel;
 use \Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Component\Security\Acl\Domain\RoleSecurityIdentity;
 use Symfony\Component\Security\Acl\Domain\UserSecurityIdentity;
 use Symfony\Component\Security\Acl\Domain\ObjectIdentity as SecurityObjectIdentity;
@@ -14,20 +15,23 @@ use FOS\UserBundle\Model\UserInterface;
 class Right extends BaseModel
 {
 
-    public function findRight(UserInterface $user, RightTokenInterface $token) {        
-        
-        $objectIdentity =
-                $this->container
-                ->get('model_factory')
-                ->getModel('Core\SecurityBundle\Entity\ObjectIdentity')
-                ->findOneBy(['name' => $token->getName()]);
-        
+    public function findRight(UserInterface $user, RightTokenInterface $token) {
+
+        try {
+            $objectIdentity =
+                $this->getModelFactory()
+                    ->getModel('Core\SecurityBundle\Entity\ObjectIdentity')
+                    ->findOneBy(['name' => $token->getName()]);
+        } catch(EntityNotFoundException $ex) {
+            return [];
+        }
+
         return $this->getQueryBuilder('u')
             ->where('u.objectidentity = :oi')
-            ->andWhere('u.user = :usr OR role IN (:roles)')
+            ->andWhere('u.user = :usr or u.role in (:roles)')
             ->setParameter('usr', $user)
-            ->setParameter('oi', $objectIdentity)  
-            ->setParameter('roles', $user->getRoles())                  
+            ->setParameter('oi', $objectIdentity)
+            ->setParameter('roles', $user->getRoles())
             ->getQuery()
             ->getResult();
         
@@ -38,20 +42,20 @@ class Right extends BaseModel
 
         $modelFactory = $this->container->get("model_factory");
         $objectIdentityModel = $modelFactory->getModel('Core\\SecurityBundle\\Entity\\ObjectIdentity');
-
+        $scopeModel = $modelFactory->getModel('Core\\SecurityBundle\\Entity\\Scope');
         $arrayCollection = new ArrayCollection();
         foreach ($records as $record) {
             
             $objectIdentity = $objectIdentityModel->findOneBy(['id' => $record['module_id'], 'objectIdentityType' => 5]);            
             if ($objectIdentity) {
+                $right = $this->getEntity();
+                $right->setScope($scopeModel->findOneById($record['scope_id']));
+                $right->setObjectIdentity($objectIdentity);
+                $right->setUser($user);
+                $maskBuilder = $this->setRights($right, $record);
+                $arrayCollection[] = $right;
 
-                $entity = $this->getEntity();
-                $entity->setObjectIdentity($objectIdentity);
-                $entity->setUser($user);
-                $maskBuilder = $this->setRights($entity, $record);
-                $arrayCollection[] = $entity;
-
-                $this->insertAceForUser($entity, $user, $maskBuilder);
+                $this->insertAceForUser($right, $user, $maskBuilder);
             }
         }
 
@@ -63,19 +67,19 @@ class Right extends BaseModel
 
         $modelFactory = $this->container->get("model_factory");
         $objectIdentityModel = $modelFactory->getModel('Core\\SecurityBundle\\Entity\\ObjectIdentity');
-
+        $scopeModel = $modelFactory->getModel('Core\\SecurityBundle\\Entity\\Scope');
         $arrayCollection = new ArrayCollection();
         foreach ($records as $record) {
 
             $objectIdentity = $objectIdentityModel->findOneBy(['id' => $record['module_id'], 'objectIdentityType' => 5]);
             if ($objectIdentity) {
-
-                $entity = $this->getEntity();
-                $entity->setObjectIdentity($objectIdentity);
-                $entity->setRole($role);
-                $maskBuilder = $this->setRights($entity, $record);
-                $arrayCollection[] = $entity;
-                $this->insertAceForRole($entity, $role, $maskBuilder);
+                $role = $this->getEntity();
+                $right->setScope($scopeModel->findOneById($record['scope_id']));
+                $role->setObjectIdentity($objectIdentity);
+                $role->setRole($role);
+                $maskBuilder = $this->setRights($role, $record);
+                $arrayCollection[] = $role;
+                $this->insertAceForRole($role, $role, $maskBuilder);
             }
         }
 
@@ -86,24 +90,26 @@ class Right extends BaseModel
     {
 
         $modelFactory = $this->container->get("model_factory");
-        $objectIdentityModel = $modelFactory->getModel('Core\\SecurityBundle\\Entity\\ObjectIdentity'); 
+        $objectIdentityModel = $modelFactory->getModel('Core\\SecurityBundle\\Entity\\ObjectIdentity');
+        $scopeModel = $modelFactory->getModel('Core\\SecurityBundle\\Entity\\Scope');
         $arrayCollection = new ArrayCollection();
         foreach ($records as $record) {
-            $entity = $this->getRepository()->findOneBy(['user' => $user->getId(), 'objectidentity' => $record['module_id']]);
-            if (empty($entity)) {
+            $right = $this->getRepository()->findOneBy(['user' => $user->getId(), 'objectidentity' => $record['module_id']]);
+            if ($right == null) {
                 $objectIdentity = $objectIdentityModel->findOneById($record['module_id']);
-                $entity = $this->getEntity();
-                $entity->setObjectIdentity($objectIdentity);
-                $entity->setUser($user);
-                $arrayCollection[] = $entity;
+                $right = $this->getEntity();
+                $right->setObjectIdentity($objectIdentity);
+                $right->setUser($user);
+                $right->setScope($scopeModel->findOneById($record['scope_id']));
+                $arrayCollection[] = $right;
             } else {
-                $entity->setUser($user);
-                $this->update($entity);
+                $right->setUser($user);
+                $right->setScope($scopeModel->findOneById($record['scope_id']));
+                $this->update($right);
             }
-            $maskBuilder = $this->setRights($entity, $record);
-            $this->insertAceForUser($entity, $user, $maskBuilder);
+            $maskBuilder = $this->setRights($right, $record);
+            $this->insertAceForUser($right, $user, $maskBuilder);
         }
-
 
         $this->createEntities($arrayCollection);
         $this->flush();
@@ -184,9 +190,9 @@ class Right extends BaseModel
     }
 
     /*
-      protected function insertClassAce($role, $businessObjectIdentity, $maskArray)
+      protected function insertClassAce($scope, $businessObjectIdentity, $maskArray)
       {
-      $securityIdentity = new RoleSecurityIdentity($role);
+      $securityIdentity = new RoleSecurityIdentity($scope);
       $acl = $this->findAcl($businessObjectIdentity);
       //wywal wszystko wczesniej
       foreach ($maskArray as $mask) {
@@ -199,22 +205,25 @@ class Right extends BaseModel
 
         $modelFactory = $this->container->get("model_factory");
         $objectIdentityModel = $modelFactory->getModel('Core\\SecurityBundle\\Entity\\ObjectIdentity');
+        $scopeModel = $modelFactory->getModel('Core\\SecurityBundle\\Entity\\Scope');
         $arrayCollection = new ArrayCollection();
         foreach ($records as $record) {
-            $entity = $this->getRepository()->findOneBy(['role' => $role->getId(), 'objectidentity' => $record['module_id']]);
-            if (empty($entity)) {
+            $right = $this->getRepository()->findOneBy(['role' => $role->getId(), 'objectidentity' => $record['module_id']]);
+            if (empty($right)) {
                 $objectIdentity = $objectIdentityModel->findOneById($record['module_id']);
-                $entity = $this->getEntity();
-                $entity->setObjectIdentity($objectIdentity);
-                $entity->setRole($role);
-                $maskBuilder = $this->setRights($entity, $record);
-                $arrayCollection[] = $entity;
+                $right = $this->getEntity();
+                $right->setObjectIdentity($objectIdentity);
+                $right->setRole($role);
+                $right->setScope($scopeModel->findOneById($record['scope_id']));
+                $maskBuilder = $this->setRights($right, $record);
+                $arrayCollection[] = $right;
             } else {
-                $entity->setRole($role);
-                $maskBuilder = $this->setRights($entity, $record);
-                $this->update($entity);
+                $right->setRole($role);
+                $right->setScope($scopeModel->findOneById($record['scope_id']));
+                $maskBuilder = $this->setRights($right, $record);
+                $this->update($right);
             }
-            $this->insertAceForRole($entity, $role, $maskBuilder);
+            $this->insertAceForRole($right, $role, $maskBuilder);
         }
 
         $this->createEntities($arrayCollection);
