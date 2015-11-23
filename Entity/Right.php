@@ -35,9 +35,7 @@ class Right
     protected $masterRight;
 
     /**
-     * @ORM\ManyToOne(targetEntity="TMSolution\UserBundle\Entity\User")
-     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
-     *
+     * @ORM\ManyToOne(targetEntity="Core\SecurityBundle\Model\SecureUserInterface")
      */
     protected $user;
 

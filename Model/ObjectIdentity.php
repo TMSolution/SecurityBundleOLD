@@ -5,7 +5,6 @@ namespace Core\SecurityBundle\Model;
 use Core\ModelBundle\Model\Model as BaseModel;
 use Core\SecurityBundle\Entity\Right as RightEntity;
 use Doctrine\Common\Collections\ArrayCollection;
-use FOS\UserBundle\Model\UserInterface;
 use Symfony\Component\Security\Acl\Domain\ObjectIdentity as SecurityObjectIdentity;
 
 class ObjectIdentity extends BaseModel
@@ -133,6 +132,49 @@ class ObjectIdentity extends BaseModel
         return $this->findBy(['objectIdentityType' => 2]);
     }
 
+    /**
+     * Get role matrix
+     *
+     * Join role and user rights.
+     *
+     * @todo duplicates getRightMatrix
+     * @param UserInterface $user
+     * @return array right Matrix
+     */
+    public function getRoleMatrix(array $roles)
+    {
+        $rightModel = $this->getModelFactory()->getModel('Core\SecurityBundle\Entity\Right');
+        $rights = $rightModel->getQueryBuilder()
+            ->orWhere('u.role in (:role)')
+            ->setParameter('role', $roles)
+            ->getQuery()
+            ->getResult();
+        
+        $rightSet = [];
+        foreach ($rights as $right) {
+            $item = $this->createRightSetItem($right);
+            if (isset($rightSet[$item['objectidentity_name']])) {
+                $rightSetItem = $rightSet[$item['objectidentity_name']];
+                if ($item['right_viewRight'] === true) {
+                    $rightSet[$item['objectidentity_name']]['right_viewRight'] = true;
+                }
+                if ($item['right_editRight'] === true) {
+                    $rightSet[$item['objectidentity_name']]['right_editRight'] = true;
+                }
+                if ($item['right_masterRight'] === true) {
+                    $rightSet[$item['objectidentity_name']]['right_masterRight'] = true;
+                }
+                if ($rightSetItem['right_scope_mask'] < $item['right_scope_mask']) {
+                    $rightSet[$item['objectidentity_name']]['right_scope_mask'] = $item['right_scope_mask'];
+                    $rightSet[$item['objectidentity_name']]['right_scope_id'] = $item['right_scope_id'];
+                }
+                continue;
+            }
+            $rightSet[$item['objectidentity_name']] = $item;
+        }
+        
+        return $rightSet;
+    }    
 
     /**
      * Get right matrix
@@ -142,7 +184,7 @@ class ObjectIdentity extends BaseModel
      * @param UserInterface $user
      * @return array right Matrix
      */
-    public function getRightMatrix(UserInterface $user, array $roles)
+    public function getRightMatrix(SecureUserInterface $user, array $roles)
     {
         $rightModel = $this->getModelFactory()->getModel('Core\SecurityBundle\Entity\Right');
         $rights = $rightModel->getQueryBuilder()

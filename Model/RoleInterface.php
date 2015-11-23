@@ -1,4 +1,5 @@
 <?php
+
 namespace Core\SecurityBundle\Model;
 
 interface RoleInterface
