@@ -33,7 +33,6 @@ class AnnotationDriver
     {
         $aclProvider = $this->container->get('security.acl.provider');
         $masterRequest = $this->container->get('request_stack')->getMasterRequest();
-        $objectName = $this->container->get("classmapperservice")->getEntityClass($masterRequest->attributes->get('entityName'), $masterRequest->getLocale());
         
         $route = $this->container->get('request')->get('_route');
         $pathInfo = $this->container->get('request')->getPathInfo();
