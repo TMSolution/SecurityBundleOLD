@@ -1,8 +1,16 @@
-services:    
+services:
     security_right_context:
         class: Core\SecurityBundle\Context\RightContext
         arguments: [@service_container] 
-
+        
+    security_right_profiler:
+        class: Core\SecurityBundle\Profiler\RightsCollector
+        tags:
+            -
+                name: data_collector
+                template: CoreSecurityBundle:Profiler:secure.collector.html.twig
+                id: rights
+    
     some_annotation_driver:
        class: Core\SecurityBundle\Annotations\Driver\AnnotationDriver
        tags: [{name: kernel.event_listener, event: kernel.controller, method: onKernelController}] #Point event

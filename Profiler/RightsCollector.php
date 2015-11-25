@@ -9,18 +9,23 @@ use Symfony\Component\HttpKernel\DataCollector\DataCollectorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class SecurityRightCollector implements DataCollectorInterface
+class RightsCollector implements DataCollectorInterface
 {
+    
     private $tokenClass;
     private $tokenName;
     private $scope;
-
-
+    
     public function collect(Request $request, Response $response, Exception $exception = null)
     {
-        $kernel = new AppKernel('dev', true);
+        
+//        ob_start();
+//        dump($request);
+//        $this->scope = ob_get_clean();
+//        exit();
+        $kernel = new \AppKernel('dev', true);
         $kernel->boot();
-        $container = $kernel->getContainer();
+        $container = $kernel->getContainer();   
         $container->enterScope('request');
         $container->set('request', $request, 'request');
         $securityRightContext = $container->get('security_right_context');

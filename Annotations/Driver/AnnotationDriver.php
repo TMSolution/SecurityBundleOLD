@@ -31,6 +31,7 @@ class AnnotationDriver
     //@todo:obsłużyć wszystkie możliwe wyjątki
     public function checkRights($rights)
     {
+        return;
         $aclProvider = $this->container->get('security.acl.provider');
         $masterRequest = $this->container->get('request_stack')->getMasterRequest();
         $objectName = $this->container->get("classmapperservice")->getEntityClass($masterRequest->attributes->get('entityName'), $masterRequest->getLocale());
