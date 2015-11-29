@@ -77,4 +77,6 @@ class Scope
         return (string) $this->scope;
     }
 
+
+
 }

@@ -352,4 +352,38 @@ class ObjectIdentity
         return $this->name;
     }
 
+
+    /**
+     * Add rights
+     *
+     * @param \Core\SecurityBundle\Entity\Right $rights
+     * @return ObjectIdentity
+     */
+    public function addRight(\Core\SecurityBundle\Entity\Right $rights)
+    {
+        $this->rights[] = $rights;
+
+        return $this;
+    }
+
+    /**
+     * Remove rights
+     *
+     * @param \Core\SecurityBundle\Entity\Right $rights
+     */
+    public function removeRight(\Core\SecurityBundle\Entity\Right $rights)
+    {
+        $this->rights->removeElement($rights);
+    }
+
+    /**
+     * Get rights
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getRights()
+    {
+        return $this->rights;
+    }
+
 }

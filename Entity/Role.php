@@ -26,14 +26,23 @@ class Role implements RoleInterface
      */
     private $role;
     
+    
+    /**
+     * @ORM\ManyToMany(targetEntity="CCO\UserBundle\Entity\User", inversedBy="rolesCollection")
+     * @ORM\JoinTable(name="callcenter_user_has_role", 
+     *      joinColumns={ @ORM\JoinColumn(name="role_id", referencedColumnName="id") },
+     *      inverseJoinColumns={ @ORM\JoinColumn(name="user_id", referencedColumnName="id")})
+     */
+    protected $users;
+    
     /**
      * Populate the scope field
      * @param string $role ROLE_FOO etc
      */
-    public function __construct($role)
+   /* public function __construct($role)
     {
         $this->role = $role;
-    }
+    }*/
 
     /**
      * Get id
@@ -68,6 +77,40 @@ class Role implements RoleInterface
     public function __toString()
     {
         return (string) $this->role;
+    }
+
+
+    /**
+     * Add users
+     *
+     * @param \CCO\UserBundle\Entity\User $users
+     * @return Role
+     */
+    public function addUser(\CCO\UserBundle\Entity\User $users)
+    {
+        $this->users[] = $users;
+
+        return $this;
+    }
+
+    /**
+     * Remove users
+     *
+     * @param \CCO\UserBundle\Entity\User $users
+     */
+    public function removeUser(\CCO\UserBundle\Entity\User $users)
+    {
+        $this->users->removeElement($users);
+    }
+
+    /**
+     * Get users
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getUsers()
+    {
+        return $this->users;
     }
 
 }

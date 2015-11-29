@@ -287,4 +287,15 @@ class Permission {
     {
         return $this->children;
     }
+
+    /**
+     * __toString method
+     *
+     * return string
+     */
+    public function __toString()
+    {
+        return (string)$this->getName();
+    }
+
 }
