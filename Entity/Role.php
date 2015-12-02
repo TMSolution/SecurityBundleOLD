@@ -36,7 +36,7 @@ class Role implements RoleInterface
     protected $users;
     
     /**
-     * Populate the scope field
+     * Populate the role field
      * @param string $role ROLE_FOO etc
      */
    /* public function __construct($role)
@@ -55,7 +55,7 @@ class Role implements RoleInterface
     }
     
     /**
-     * Return the scope field.
+     * Return the role field.
      * @return string 
      */
     public function getRole()
@@ -71,7 +71,7 @@ class Role implements RoleInterface
     }
 
     /**
-     * Return the scope field.
+     * Return the role field.
      * @return string 
      */
     public function __toString()
