@@ -22,7 +22,7 @@ class Role implements RoleInterface
     public $id;
     
     /**
-     * @ORM\Column(type="string", name="scope", unique=true, length=70)
+     * @ORM\Column(type="string", name="role", unique=true, length=70)
      */
     private $role;
     
