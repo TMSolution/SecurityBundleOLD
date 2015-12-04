@@ -26,12 +26,9 @@ class Role implements RoleInterface
      */
     private $role;
     
-    
+   
     /**
-     * @ORM\ManyToMany(targetEntity="CCO\UserBundle\Entity\User", inversedBy="rolesCollection")
-     * @ORM\JoinTable(name="callcenter_user_has_role", 
-     *      joinColumns={ @ORM\JoinColumn(name="role_id", referencedColumnName="id") },
-     *      inverseJoinColumns={ @ORM\JoinColumn(name="user_id", referencedColumnName="id")})
+     * @ORM\ManyToMany(targetEntity="CCO\UserBundle\Entity\User", mappedBy="rolesCollection")
      */
     protected $users;
     
