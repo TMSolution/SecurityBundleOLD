@@ -28,7 +28,11 @@ class Role implements RoleInterface
     
    
     /**
+<<<<<<< HEAD
      * @ORM\ManyToMany(targetEntity="CCO\UserBundle\Entity\User", mappedBy="rolesCollection")
+=======
+     * @ORM\ManyToMany(targetEntity="CCO\UserBundle\Entity\User", inversedBy="rolesCollection")
+>>>>>>> c01e8ca0b324058e8fcaf63ce9194f011982a652
      */
     protected $users;
     
