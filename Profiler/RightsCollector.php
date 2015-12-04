@@ -18,11 +18,6 @@ class RightsCollector implements DataCollectorInterface
     
     public function collect(Request $request, Response $response, Exception $exception = null)
     {
-        
-//        ob_start();
-//        dump($request);
-//        $this->scope = ob_get_clean();
-//        exit();
         $kernel = new \AppKernel('dev', true);
         $kernel->boot();
         $container = $kernel->getContainer();   
