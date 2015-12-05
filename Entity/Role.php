@@ -11,8 +11,7 @@ use Symfony\Component\Security\Core\Role\RoleInterface;
  * @ORM\Table("security_role")
  * @ORM\Entity
  */
-class Role implements RoleInterface
-{
+class Role  {
 
     /**
      * @ORM\Id
@@ -20,50 +19,57 @@ class Role implements RoleInterface
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     public $id;
-    
+
     /**
-     * @ORM\Column(type="string", name="role", unique=true, length=70)
+     * @ORM\Column(type="string", name="name", unique=true, length=70)
      */
-    private $role;
-    
-    
+    protected $name;
+
+    /**
+     * @ORM\Column(type="string", name="technical_name", unique=true, length=70)
+     */
+    private $technicalName;
+
     /**
      * @ORM\ManyToMany(targetEntity="CCO\UserBundle\Entity\User", inversedBy="rolesCollection")
      */
     protected $users;
-    
-    /**
-     * Populate the role field
-     * @param string $role ROLE_FOO etc
-     */
-   /* public function __construct($role)
-    {
-        $this->role = $role;
-    }*/
 
+  
     /**
      * Get id
      * 
      * @return string
      */
-    public function getId()
-    {
+    public function getId() {
         return $this->id;
     }
-    
+
     /**
-     * Return the role field.
+     * Return the name field.
      * @return string 
      */
-    public function getRole()
-    {
-        return $this->role;
+    public function getName() {
+        return $this->name;
     }
-    
-    public function setRole($role)
-    {
-        $this->role = $role;
-        
+
+    public function setName($name) {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * Return the technicalName field.
+     * @return string 
+     */
+    public function getTechnicalName() {
+        return $this->technicalName;
+    }
+
+    public function setgetTechnicalName($technicalName) {
+        $this->technicalName = $technicalName;
+
         return $this;
     }
 
@@ -71,11 +77,9 @@ class Role implements RoleInterface
      * Return the role field.
      * @return string 
      */
-    public function __toString()
-    {
-        return (string) $this->role;
+    public function __toString() {
+        return (string) $this->name;
     }
-
 
     /**
      * Add users
@@ -83,8 +87,7 @@ class Role implements RoleInterface
      * @param \CCO\UserBundle\Entity\User $users
      * @return Role
      */
-    public function addUser(\CCO\UserBundle\Entity\User $users)
-    {
+    public function addUser(\CCO\UserBundle\Entity\User $users) {
         $this->users[] = $users;
 
         return $this;
@@ -95,8 +98,7 @@ class Role implements RoleInterface
      *
      * @param \CCO\UserBundle\Entity\User $users
      */
-    public function removeUser(\CCO\UserBundle\Entity\User $users)
-    {
+    public function removeUser(\CCO\UserBundle\Entity\User $users) {
         $this->users->removeElement($users);
     }
 
@@ -105,8 +107,7 @@ class Role implements RoleInterface
      *
      * @return \Doctrine\Common\Collections\Collection 
      */
-    public function getUsers()
-    {
+    public function getUsers() {
         return $this->users;
     }
 
