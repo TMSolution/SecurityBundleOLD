@@ -31,10 +31,10 @@ class ObjectIdentity extends BaseModel
         return $tree;
     }
 
-//Usunięcie uprawnienia wiąże się z usunięciem objectIdentity z Acla
-//Dodanie uprawniena  wiąże się z dodaniem  objectIdentity do Acla
-//Przeciążyć metody save, delete, update?
-//uprawnienia musza być zapisywane natychmiast
+    //Usunięcie uprawnienia wiąże się z usunięciem objectIdentity z Acla
+    //Dodanie uprawniena  wiąże się z dodaniem  objectIdentity do Acla
+    //Przeciążyć metody save, delete, update?
+    //uprawnienia musza być zapisywane natychmiast
 
     protected function checkExecuteImmediately($executeImmediately)
     {
@@ -134,13 +134,13 @@ class ObjectIdentity extends BaseModel
 
     
     /**
-     * Merge role righst with custom settings
+     * Join rights
      * 
      * @param array $viewRights Custom request data
      * @param array $roles Roles e.g. [1, 2]
      * @return array
      */
-    public function createRightMatrix(array $viewRights, array $roles) 
+    public function joinRights(array $viewRights, array $roles)
     {
         $objectIdentityModel = $this->getModelFactory()->getModel('Core\SecurityBundle\Entity\ObjectIdentity');
         $scopeModel = $this->getModelFactory()->getModel('Core\SecurityBundle\Entity\Scope');                        
@@ -149,7 +149,7 @@ class ObjectIdentity extends BaseModel
             $viewRight = $viewRights[$roleRight['objectidentity_id']];
             $roleScope = $scopeModel->findOneById($roleRight['right_scope_id']);
             $viewScope = $scopeModel->findOneById($viewRight['right_scope_id']);
-            if($viewScope->getMask() > $roleScope->getMask()) {
+/*            if($viewScope->getMask() > $roleScope->getMask()) {
                 $roleRight['right_scope_id'] = $viewScope->getId();
             }            
             if ($roleRight["right_masterRight"] === true) {
@@ -159,7 +159,7 @@ class ObjectIdentity extends BaseModel
             } elseif ($roleRight["right_viewRight"] === true) {
                 $roleRight["right_masterRight"] = (bool) $viewRight["right_masterRight"] === "true" ? true : false;                
                 $roleRight["right_editRight"] = (bool) $viewRight["right_editRight"] === "true" ? true : false;
-            };            
+            };   */
         }                
         return $roleRights;
     }
@@ -216,54 +216,45 @@ class ObjectIdentity extends BaseModel
 //        }        
 //        return $rightSet;        
 //    }
-//    
-    /**
-     * Get role matrix from the request
-     *
-     * @param UserInterface $user
-     * @return array right Matrix
-     */
-    public function getRequestedRights(array $request)
-    {
-        $objectIdentityModel = $this->getModelFactory()->getModel('Core\SecurityBundle\Entity\ObjectIdentity');
-        $scopeModel = $this->getModelFactory()->getModel('Core\SecurityBundle\Entity\Scope');        
-        $createClosure = function (array $item) use ($objectIdentityModel, $scopeModel) {
-            $objectIdentity = $objectIdentityModel->findOneById($item['module_id']);
-            $scope = $scopeModel->findOneById($item['scope_id']);
-            $right = [];            
-            $right["objectidentity_id"] = $objectIdentity->getId();
-            $right["objectidentity_name"] = $objectIdentity->getName();
-            $right["objectidentity_displayName"] = $objectIdentity->getDisplayName();            
-            $right["right_id"] = null;            
-            $right["right_viewRight"] = isset($item['viewRight']) ? (bool) $item['viewRight'] : false;
-            $right["right_editRight"] = isset($item['editRight']) ? (bool) $item['editRight'] : false;
-            $right["right_masterRight"] = isset($item['masterRight']) ? (bool) $item['masterRight'] : false;            
-            if($right["right_masterRight"] === true) {
-                $right["right_editRight"] = true;
-            } 
-            if ($right["right_editRight"] === true) {                
-                $right["right_viewRight"] = true;
-            }            
-            $right["right_scope_id"] = $scope->getId();
-            $right["right_scope_mask"] = $scope->getMask();
-            return $right;
-        };
-        
-        $rightSet = [];
-        foreach ($request as $right) {
-            $item = $createClosure($right);
-            $rightSet[$item['objectidentity_name']] = $item;
+//
+/*public function getRequestedRights(array $request)
+{
+    $objectIdentityModel = $this->getModelFactory()->getModel('Core\SecurityBundle\Entity\ObjectIdentity');
+    $scopeModel = $this->getModelFactory()->getModel('Core\SecurityBundle\Entity\Scope');
+    $createClosure = function (array $item) use ($objectIdentityModel, $scopeModel) {
+        $objectIdentity = $objectIdentityModel->findOneById($item['module_id']);
+        $scope = $scopeModel->findOneById($item['scope_id']);
+        $right = [];
+        $right["objectidentity_id"] = $objectIdentity->getId();
+        $right["objectidentity_name"] = $objectIdentity->getName();
+        $right["objectidentity_displayName"] = $objectIdentity->getDisplayName();
+        $right["right_id"] = null;
+        $right["right_viewRight"] = isset($item['viewRight']) ? (bool) $item['viewRight'] : false;
+        $right["right_editRight"] = isset($item['editRight']) ? (bool) $item['editRight'] : false;
+        $right["right_masterRight"] = isset($item['masterRight']) ? (bool) $item['masterRight'] : false;
+        if($right["right_masterRight"] === true) {
+            $right["right_editRight"] = true;
         }
-        
-        return $rightSet;
-    }  
+        if ($right["right_editRight"] === true) {
+            $right["right_viewRight"] = true;
+        }
+        $right["right_scope_id"] = $scope->getId();
+        $right["right_scope_mask"] = $scope->getMask();
+        return $right;
+    };
+
+    $rightSet = [];
+    foreach ($request as $right) {
+        $item = $createClosure($right);
+        $rightSet[$item['objectidentity_name']] = $item;
+    }
+
+    return $rightSet;
+}  */
     
     /**
      * Get role matrix
      *
-     * Join role and user rights.
-     *
-     * @todo duplicates getRightMatrix
      * @param UserInterface $user
      * @return array right Matrix
      */
@@ -352,9 +343,13 @@ class ObjectIdentity extends BaseModel
     {
         $rights = $this->getModelFactory()->getModel('Core\SecurityBundle\Entity\Right')->findBy(['user' => $user]);
         $rightSet = [];
+        dump($rights);
         foreach ($rights as $right) {
             $rightSet[] = $this->createRightSetItem($right);
         }
+        dump($rightSet);
+        exit();
+
         return $rightSet;
     }
 
