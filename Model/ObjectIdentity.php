@@ -343,13 +343,9 @@ class ObjectIdentity extends BaseModel
     {
         $rights = $this->getModelFactory()->getModel('Core\SecurityBundle\Entity\Right')->findBy(['user' => $user]);
         $rightSet = [];
-        dump($rights);
         foreach ($rights as $right) {
             $rightSet[] = $this->createRightSetItem($right);
         }
-        dump($rightSet);
-        exit();
-
         return $rightSet;
     }
 
