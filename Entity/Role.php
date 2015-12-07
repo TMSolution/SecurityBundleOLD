@@ -31,7 +31,7 @@ class Role  {
     private $technicalName;
 
     /**
-     * @ORM\ManyToMany(targetEntity="CCO\UserBundle\Entity\User", inversedBy="rolesCollection")
+     * @ORM\ManyToMany(targetEntity="CCO\UserBundle\Entity\User", mappedBy="rolesCollection")
      */
     protected $users;
     
