@@ -34,6 +34,11 @@ class Role  {
      * @ORM\ManyToMany(targetEntity="CCO\UserBundle\Entity\User", inversedBy="rolesCollection")
      */
     protected $users;
+    
+     /**
+     * @ORM\Column(type="boolean", name="is_call_center_role")
+     */
+    protected $isCallCenterRole;
 
   
     /**
