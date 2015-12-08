@@ -116,4 +116,49 @@ class Role  {
         return $this->users;
     }
 
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->users = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Set technicalName
+     *
+     * @param string $technicalName
+     *
+     * @return Role
+     */
+    public function setTechnicalName($technicalName)
+    {
+        $this->technicalName = $technicalName;
+
+        return $this;
+    }
+
+    /**
+     * Set isCallCenterRole
+     *
+     * @param boolean $isCallCenterRole
+     *
+     * @return Role
+     */
+    public function setIsCallCenterRole($isCallCenterRole)
+    {
+        $this->isCallCenterRole = $isCallCenterRole;
+
+        return $this;
+    }
+
+    /**
+     * Get isCallCenterRole
+     *
+     * @return boolean
+     */
+    public function getIsCallCenterRole()
+    {
+        return $this->isCallCenterRole;
+    }
 }
