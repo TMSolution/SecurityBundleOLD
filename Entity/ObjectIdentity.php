@@ -40,7 +40,7 @@ class ObjectIdentity
 
     /**
      * @ORM\ManyToOne(targetEntity="ObjectIdentityType")
-     * @ORM\JoinColumn(name="objectidentitytype_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="objectidentitytype_id", referencedColumnName="id", nullable = true)
      */
     protected $objectIdentityType;
 
@@ -71,8 +71,8 @@ class ObjectIdentity
 
     /**
      * @Gedmo\TreeParent
-     * @ORM\ManyToOne(targetEntity="ObjectIdentity", inversedBy="children")
-     * @ORM\JoinColumn(name="parent_id", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\ManyToOne(targetEntity="ObjectIdentity", inversedBy="children"))
+     * @ORM\JoinColumn(name="parent_id", referencedColumnName="id", onDelete="CASCADE", nullable = true)
      * 
      */
     private $parent;

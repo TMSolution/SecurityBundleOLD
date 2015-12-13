@@ -6,9 +6,14 @@ use Core\ModelBundle\Model\Model as BaseModel;
 use Core\SecurityBundle\Entity\Right as RightEntity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Security\Acl\Domain\ObjectIdentity as SecurityObjectIdentity;
+use Symfony\Component\Yaml\Exception\ParseException;
+use DomainException;
+use Doctrine\ORM\EntityNotFoundException;
+use OutOfBoundsException;
 
 class ObjectIdentity extends BaseModel
 {
+
     /**
      * Get all resources with identity 'link'
      *

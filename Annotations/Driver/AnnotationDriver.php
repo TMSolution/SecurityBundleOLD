@@ -15,6 +15,10 @@ use Symfony\Component\Security\Acl\Permission\MaskBuilder;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Security\Acl\Exception\NoAceFoundException;
 
+/**
+ * @deprecated
+ * @see SecurityListener
+ */
 class AnnotationDriver
 {
 
@@ -31,7 +35,6 @@ class AnnotationDriver
     //@todo:obsłużyć wszystkie możliwe wyjątki
     public function checkRights($rights)
     {
-        return;
         $aclProvider = $this->container->get('security.acl.provider');
         $masterRequest = $this->container->get('request_stack')->getMasterRequest();
         

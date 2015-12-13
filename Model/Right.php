@@ -14,7 +14,7 @@ use FOS\UserBundle\Model\UserInterface;
 
 class Right extends BaseModel
 {
-
+    
     public function findRight(UserInterface $user, RightTokenInterface $token) {
 
         try {
@@ -73,10 +73,10 @@ class Right extends BaseModel
 
             $objectIdentity = $objectIdentityModel->findOneBy(['id' => $record['module_id'], 'objectIdentityType' => 5]);
             if ($objectIdentity) {
-                $role = $this->getEntity();
+                $right = $this->getEntity();
                 $right->setScope($scopeModel->findOneById($record['scope_id']));
-                $role->setObjectIdentity($objectIdentity);
-                $role->setRole($role);
+                $right->setObjectIdentity($objectIdentity);
+                $right->setRole($role);
                 $maskBuilder = $this->setRights($role, $record);
                 $arrayCollection[] = $role;
                 $this->insertAceForRole($role, $role, $maskBuilder);
