@@ -36,6 +36,8 @@ class AccessDeniedListener
             }
         }
          elseif (get_class($event->getException()) == 'Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException') {
+//            dump($event->getException());
+//            exit();
             $this->accessDenied($event);
         }
     }
