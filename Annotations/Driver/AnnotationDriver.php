@@ -31,7 +31,6 @@ class AnnotationDriver
     //@todo:obsłużyć wszystkie możliwe wyjątki
     public function checkRights($rights)
     {
-        return false;
         
         $aclProvider = $this->container->get('security.acl.provider');
         $masterRequest = $this->container->get('request_stack')->getMasterRequest();
