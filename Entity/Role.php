@@ -72,12 +72,6 @@ class Role  {
         return $this->technicalName;
     }
 
-    public function setgetTechnicalName($technicalName) {
-        $this->technicalName = $technicalName;
-
-        return $this;
-    }
-
     /**
      * Return the role field.
      * @return string 
