@@ -112,7 +112,7 @@ class Right
         return $this->user;
     }
 
-    public function setUser(\TMSolution\UserBundle\Entity\User $user = null)
+    public function setUser(\Core\SecurityBundle\Model\SecureUserInterface $user = null)
     {
         $this->user = $user;
         return $this;

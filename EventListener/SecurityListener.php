@@ -86,8 +86,8 @@ class SecurityListener {
             );
         }       
         
-        $this->ensureRights($permissions->rights);
-        
+        $this->ensureRights($permissions->rights); 
+       
     }
     
     /**
