@@ -18,9 +18,9 @@ services:
        arguments: [@service_container] 
        scope: prototype
        
-    security_right_profiler:
-        class: Core\SecurityBundle\Profiler\RightsCollector
-        tags: [{name: data_collector, template: CoreSecurityBundle:Profiler:secure.collector.html.twig, id: rights}]
+#    security_right_profiler:
+#        class: Core\SecurityBundle\Profiler\RightsCollector
+#        tags: [{name: data_collector, template: CoreSecurityBundle:Profiler:secure.collector.html.twig, id: rights}]
 
     kernel.listener.access_denied:
         class: Core\SecurityBundle\EventListener\AccessDeniedListener
