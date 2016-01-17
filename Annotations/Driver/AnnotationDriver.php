@@ -2,7 +2,9 @@
 
 namespace Core\SecurityBundle\Annotations\Driver;
 
+use Core\SecurityBundle\Context\NoRightToken;
 use Doctrine\Common\Annotations\Reader; //This thing read annotations
+use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpKernel\Event\FilterControllerEvent; //Use essential kernel component
 use Core\SecurityBundle\Annotations; //Use our annotation
 use Core\SecurityBundle\Annotations\Permissions; //In this class I check correspondence permission to user
@@ -28,32 +30,26 @@ class AnnotationDriver
         $this->type = $type;
     }
 
-    //@todo:obsłużyć wszystkie możliwe wyjątki
+    /**
+     * @param $rights
+     */
     public function checkRights($rights)
     {
-        
-        $aclProvider = $this->container->get('security.acl.provider');
-        $masterRequest = $this->container->get('request_stack')->getMasterRequest();
-        
-        $route = $this->container->get('request')->get('_route');
-        $pathInfo = $this->container->get('request')->getPathInfo();
-        $pathInfo = \trim($pathInfo, '/');        
-        $pathInfo = str_replace('/', "_", $pathInfo);
-        $nodes = \explode('_', $pathInfo);
-        
-        if (isset($nodes[0]) && $nodes[0] !== 'panel' && count($nodes) == 1) {
+        $rightToken = $this->container->get('security_right_context')->getToken();
+        if ($rightToken instanceof NoRightToken) {
+            throw new AccessDeniedException(
+                sprintf(
+                    'Access to \'%s\' was denied',
+                    $rightToken->getName()
+                )
+            );
+        }
+        if ($rightToken->isWhiteListed() === true) {
             return;
         }
 
-        $classIdentity = new ObjectIdentity(
-            implode('_', array_slice($nodes, 0, 2)),
-            'link'
-        );        
-        
-//        dump($classIdentity);
-//        exit();
-//        throws AclNotFoundException
-        
+        $classIdentity = new ObjectIdentity($rightToken->getName(), 'link');
+        $aclProvider = $this->container->get('security.acl.provider');
         $acl = $aclProvider->findAcl($classIdentity); 
         $user = $this->container->get('security.context')->getToken()->getUser();        
         

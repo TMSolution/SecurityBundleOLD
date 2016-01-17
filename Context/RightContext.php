@@ -12,12 +12,14 @@ class RightContext implements RightContextInterface
     const SCOPE_ALL = 4;
 
     private $container;
+    private $whiteList;
     private $name;
     
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
         $this->name = $this->getSecurityTokenName();
+        $this->whiteList = $container->get('security_whitelist');
     }
     
     public function getToken()
@@ -27,6 +29,10 @@ class RightContext implements RightContextInterface
         $token = $this->container->get('security.token_storage')->getToken();
         if ($token == null) {
             return new NoRightToken();
+        }
+
+        if ($this->isWhiteListed()) {
+            return new RightToken($this->getSecurityTokenName(), true);
         }
 
         try {
@@ -40,9 +46,9 @@ class RightContext implements RightContextInterface
                 ->setParameter('o', $objectIdentity)
                 ->getQuery()
                 ->getScalarResult();
-            return new RightToken($this->getSecurityTokenName());
+            return new RightToken($this->getSecurityTokenName(), $this->isWhiteListed());
         } catch(EntityNotFoundException $e) {
-            return new NoRightToken();
+            return new NoRightToken($this->getSecurityTokenName());
         }
     }
 
@@ -57,6 +63,14 @@ class RightContext implements RightContextInterface
             return '';
         }
         return implode('_', array_slice($nodes, 0, 2));
+    }
+
+
+    private function isWhiteListed()
+    {
+        return $this->whiteList->allowRoute(
+            $this->container->get('request')->get('_route')
+        );
     }
 
     public function getScope()

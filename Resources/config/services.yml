@@ -2,7 +2,11 @@ services:
     security_right_context:
         class: Core\SecurityBundle\Context\RightContext
         arguments: [@service_container] 
-        
+
+    security_whitelist:
+        class: Core\SecurityBundle\Context\WhiteList
+        arguments: [%route_whitelist%]
+
     security_right_profiler:
         class: Core\SecurityBundle\Profiler\RightsCollector
         tags:
