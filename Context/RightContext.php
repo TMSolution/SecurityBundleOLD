@@ -73,21 +73,33 @@ class RightContext implements RightContextInterface
         );
     }
 
+    /**
+     * Resolve scope
+     * 
+     * @return int current scope
+     */
     public function getScope()
     {
-        $rightModel = $this->container->get('model_factory')->getModel('Core\SecurityBundle\Entity\Right');
-        $objectIdentityModel = $this->container->get('model_factory')->getModel('Core\SecurityBundle\Entity\ObjectIdentity');
-        $rights = $rightModel->findBy([
-            'objectidentity' => $objectIdentityModel->findOneBy(['name' => $this->getToken()->getName()])
-        ]);
-        $scope = self::SCOPE_SELF;
-        foreach ($rights as $right) {
-            $scope = $scope | $right->getScope()->getMask();
-        }
-        return $scope;
+        $rightModel = $this->getModel(
+            'Core\SecurityBundle\Entity\Right'
+        );
+        $objectIdentityModel = $this->getModel(
+            'Core\SecurityBundle\Entity\ObjectIdentity'
+        );
+        $right = $rightModel->findOneBy([
+            'objectidentity' => $objectIdentityModel->findOneBy([
+                'name' => $this->getToken()->getName()
+            ]),
+            'user' => $this->contextUser()
+        ]);        
+        return self::SCOPE_SELF | $right->getScope()->getMask();        
     }
 
     protected function getModel($className) {
         return $this->container->get('model_factory')->getModel($className);
+    }
+    
+    protected function contextUser() {
+        return $this->container->get('security.token_storage')->getToken()->getUser();
     }
 }

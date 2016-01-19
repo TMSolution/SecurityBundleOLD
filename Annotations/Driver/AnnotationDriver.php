@@ -72,7 +72,6 @@ class AnnotationDriver
             return;
         }
 
-
         $object = new \ReflectionObject($controller[0]); // get controller
         $method = $object->getMethod($controller[1]); // get method
 
