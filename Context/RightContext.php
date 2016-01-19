@@ -91,8 +91,8 @@ class RightContext implements RightContextInterface
                 'name' => $this->getToken()->getName()
             ]),
             'user' => $this->contextUser()
-        ]);        
-        return self::SCOPE_SELF | $right->getScope()->getMask();        
+        ]);
+        return self::SCOPE_SELF | $right->getScope()->getMask();
     }
 
     protected function getModel($className) {
