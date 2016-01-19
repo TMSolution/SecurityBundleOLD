@@ -35,15 +35,11 @@ class AnnotationDriver
      */
     public function checkRights($rights)
     {
-        dump('asdfasdf');
-        
         $rightToken = $this->container->get('security_right_context')->getToken();
         if ($rightToken instanceof NoRightToken) {
             if ($rightToken->getName() == "_fragment") {
                 return;
             }
-            dump($this->container->get('request'));
-            dump($rightToken->getName());
             throw new AccessDeniedException(
                 sprintf(
                     'Access to \'%s\' was denied',
