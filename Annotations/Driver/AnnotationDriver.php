@@ -35,6 +35,7 @@ class AnnotationDriver
      */
     public function checkRights($rights)
     {
+        
         $rightToken = $this->container->get('security_right_context')->getToken();
         if ($rightToken instanceof NoRightToken) {
             if ($rightToken->getName() == "_fragment") {
@@ -50,19 +51,21 @@ class AnnotationDriver
         if ($rightToken->isWhiteListed() === true) {
             return;
         }
-
+        
         $classIdentity = new ObjectIdentity($rightToken->getName(), 'link');
         $aclProvider = $this->container->get('security.acl.provider');
         $acl = $aclProvider->findAcl($classIdentity); 
-        $user = $this->container->get('security.context')->getToken()->getUser();        
+        $acl->setEntriesInheriting(false);
         
+        $user = $this->container->get('security.context')->getToken()->getUser();        
         $securityIdentities = [];
-        $securityIdentities[]= new UserSecurityIdentity($user->getEmail(), 'TMSolution\UserBundle\Entity\User');
-    
+        $securityIdentities[]= new UserSecurityIdentity($user->getEmail(), 'TMSolution\UserBundle\Entity\User');    
         foreach ($user->getRoles() as $role) {
             $securityIdentities[] = new RoleSecurityIdentity($role->getRole());
         }
+
         $acl->isGranted($rights, $securityIdentities);        
+
     }
 
     /**
@@ -80,9 +83,7 @@ class AnnotationDriver
 
         foreach ($this->reader->getMethodAnnotations($method) as $configuration) { //Start of annotations reading
             if (isset($configuration->rights)) {
-                
                 $this->checkRights($configuration->rights);
-
             }
         }
     }
