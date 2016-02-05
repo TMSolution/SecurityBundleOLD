@@ -5,7 +5,7 @@ services:
 
     security_whitelist:
         class: Core\SecurityBundle\Context\WhiteList
-        arguments: [%route_whitelist%]
+        arguments: [%route_whitelist_anonymous%, %route_whitelist_user%]
 
     security_right_profiler:
         class: Core\SecurityBundle\Profiler\RightsCollector

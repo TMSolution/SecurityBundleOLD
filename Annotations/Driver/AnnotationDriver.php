@@ -48,14 +48,18 @@ class AnnotationDriver
                 )
             );
         }
+ 
         if ($rightToken->isWhiteListed() === true) {
             return;
         }
+        
+               
         
         $classIdentity = new ObjectIdentity($rightToken->getName(), 'link');
         $aclProvider = $this->container->get('security.acl.provider');
         $acl = $aclProvider->findAcl($classIdentity); 
         $acl->setEntriesInheriting(false);
+
         
         $user = $this->container->get('security.context')->getToken()->getUser();        
         $securityIdentities = [];

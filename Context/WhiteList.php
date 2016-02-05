@@ -1,18 +1,40 @@
 <?php
 namespace Core\SecurityBundle\Context;
 
+/**
+ * White list
+ */
 class WhiteList implements WhiteListInterface
-{
-
-    private $routes;
-
-    public function __construct(array $routes = [])
+{    
+    private $anonymousRoutes;
+    private $userRoutes;
+    
+    /**
+     * @param array $anonymousRoutes
+     * @param array $userRoutes
+     */
+    public function __construct(
+        array $anonymousRoutes,
+        array $userRoutes)
     {
-        $this->routes = $routes;
+        $this->anonymousRoutes = $anonymousRoutes;
+        $this->userRoutes = $userRoutes;
     }
 
-    public function allowRoute($route) {
-        return in_array($route, $this->routes);
+    /**
+     * @inheritdoc
+     */
+    public function allowAnonymous($route)
+    {
+        return in_array($route, $this->anonymousRoutes);        
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function allowUser($route)
+    {
+        return in_array($route, $this->userRoutes);        
     }
 
 }

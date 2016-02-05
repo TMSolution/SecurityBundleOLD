@@ -26,13 +26,15 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
-                ->arrayNode('route_whitelist')
+                ->arrayNode('route_whitelist_anonymous')
                     ->useAttributeAsKey('name')
                         ->prototype('scalar')->end()
                     ->end()
-                ->end()
+                ->arrayNode('route_whitelist_user')
+                    ->useAttributeAsKey('name')
+                        ->prototype('scalar')->end()
+                    ->end()
             ->end();
-
         return $treeBuilder;
     }
 }

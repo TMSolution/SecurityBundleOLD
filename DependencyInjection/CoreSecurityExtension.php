@@ -23,9 +23,9 @@ class CoreSecurityExtension extends Extension
     {
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
-
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-        $loader->load('services.yml');
-        $container->setParameter('route_whitelist', $config['route_whitelist']);
+        $loader->load('services.yml');        
+        $container->setParameter('route_whitelist_anonymous', $config['route_whitelist_anonymous']);
+        $container->setParameter('route_whitelist_user', $config['route_whitelist_user']);        
     }
 }

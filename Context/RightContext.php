@@ -5,6 +5,9 @@ namespace Core\SecurityBundle\Context;
 use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Resolves a right token
+ */
 class RightContext implements RightContextInterface
 {
     const SCOPE_SELF = 1;
@@ -15,6 +18,9 @@ class RightContext implements RightContextInterface
     private $whiteList;
     private $name;
     
+    /**
+     * @param ContainerInterface $container
+     */
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
@@ -30,11 +36,11 @@ class RightContext implements RightContextInterface
         if ($token == null) {
             return new NoRightToken();
         }
-
+        
         if ($this->isWhiteListed()) {
             return new RightToken($this->getSecurityTokenName(), true);
-        }
-
+        }        
+        
         try {
             $objectIdentity = $objectIdentityModel->findOneBy(['name' => $this->getSecurityTokenName()]);
             $rights = $rightModel
@@ -54,7 +60,6 @@ class RightContext implements RightContextInterface
 
     private function getSecurityTokenName()
     {
-        $route = $this->container->get('request')->get('_route');
         $pathInfo = $this->container->get('request')->getPathInfo();
         $pathInfo = \trim($pathInfo, '/');
         $pathInfo = str_replace('/', "_", $pathInfo);
@@ -65,27 +70,37 @@ class RightContext implements RightContextInterface
         return implode('_', array_slice($nodes, 0, 2));
     }
 
-
+    /**
+     * @return boolean route is white listed
+     */
     private function isWhiteListed()
     {
-        return $this->whiteList->allowRoute(
-            $this->container->get('request')->get('_route')
-        );
+        $route = $this->container->get('request')->get('_route');
+        $securityContext = $this->container->get('security.authorization_checker');
+        
+        if ($securityContext->isGranted('IS_AUTHENTICATED_ANONYMOUSLY')) {        
+            if ($this->whiteList->allowAnonymous($route)) {
+                return true;
+            }
+        }
+        if ($securityContext->isGranted('IS_AUTHENTICATED_FULLY')) {
+            if ($this->whiteList->allowUser($route)) {
+                return true;
+            }
+        }
+        return false;
+        
     }
 
     /**
-     * Resolve scope
+     * Resolve a data scope
      * 
-     * @return int current scope
+     * @return int current data scope
      */
     public function getScope()
     {
-        $rightModel = $this->getModel(
-            'Core\SecurityBundle\Entity\Right'
-        );
-        $objectIdentityModel = $this->getModel(
-            'Core\SecurityBundle\Entity\ObjectIdentity'
-        );
+        $rightModel = $this->getModel('Core\SecurityBundle\Entity\Right');
+        $objectIdentityModel = $this->getModel('Core\SecurityBundle\Entity\ObjectIdentity');
         $right = $rightModel->findOneBy([
             'objectidentity' => $objectIdentityModel->findOneBy([
                 'name' => $this->getToken()->getName()
@@ -94,7 +109,7 @@ class RightContext implements RightContextInterface
         ]);
         return self::SCOPE_SELF | $right->getScope()->getMask();
     }
-
+    
     protected function getModel($className) {
         return $this->container->get('model_factory')->getModel($className);
     }
