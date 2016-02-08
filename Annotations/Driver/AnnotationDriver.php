@@ -68,7 +68,14 @@ class AnnotationDriver
             $securityIdentities[] = new RoleSecurityIdentity($role->getRole());
         }
 
-        $acl->isGranted($rights, $securityIdentities);        
+        try {
+            $acl->isGranted($rights, $securityIdentities);        
+        } catch(\Symfony\Component\Security\Acl\Exception\NoAceFoundException $e) {
+            throw new \Symfony\Component\Security\Core\Exception\AccessDeniedException(
+                'Ace for token \'%s\' was not found',
+                $rightToken->getName()
+            );
+        }
 
     }
 
