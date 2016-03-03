@@ -112,7 +112,7 @@ class RightContext implements RightContextInterface
     
     protected function getModel($className) {
         return $this->container->get('model_factory')->getModel($className);
-    }
+    }   
     
     protected function contextUser() {
         return $this->container->get('security.token_storage')->getToken()->getUser();

@@ -53,8 +53,6 @@ class AnnotationDriver
             return;
         }
         
-               
-        
         $classIdentity = new ObjectIdentity($rightToken->getName(), 'link');
         $aclProvider = $this->container->get('security.acl.provider');
         $acl = $aclProvider->findAcl($classIdentity); 
