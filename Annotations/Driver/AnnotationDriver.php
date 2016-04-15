@@ -35,7 +35,6 @@ class AnnotationDriver
      */
     public function checkRights($rights)
     {
-        
         $rightToken = $this->container->get('security_right_context')->getToken();
         if ($rightToken instanceof NoRightToken) {
             if ($rightToken->getName() == "_fragment") {
@@ -48,7 +47,6 @@ class AnnotationDriver
                 )
             );
         }
- 
         if ($rightToken->isWhiteListed() === true) {
             return;
         }

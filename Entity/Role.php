@@ -25,6 +25,11 @@ class Role implements RoleInterface
      * @ORM\Column(type="string", name="scope", unique=true, length=70)
      */
     private $role;
+
+    /**
+     * @ORM\Column(type="integer", name="priority")
+     */    
+    private $priority;
     
     /**
      * Populate the scope field
@@ -43,6 +48,29 @@ class Role implements RoleInterface
     public function getId()
     {
         return $this->id;
+    }
+    
+    /**
+     * Get priority
+     * 
+     * @return int
+     */
+    public function getPriority()
+    {
+        return $this->priority;
+    }
+
+    /**
+     * Set priority
+     * 
+     * @param int
+     * @return self
+     */
+    public function setPriority($priority)
+    {
+        $this->priority = $priority;
+        
+        return $this;
     }
     
     /**
