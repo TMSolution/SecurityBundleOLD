@@ -3,19 +3,19 @@ services:
     security_listener:
        class: Core\SecurityBundle\EventListener\SecurityListener
        tags: [{name: kernel.event_listener, event: kernel.controller, method: onKernelController}]
-       arguments: [@service_container] 
+       arguments: ["@service_container"] 
 
     security_right_context:
         class: Core\SecurityBundle\Context\RightContext
-        arguments: [@service_container] 
+        arguments: ["@service_container"] 
 
     security_right_token_strategy:
         class: Core\SecurityBundle\Context\RightTokenStrategy
-        arguments: [@service_container] 
+        arguments: ["@service_container"] 
 
     security_right_token_whitelist:
        class: Core\SecurityBundle\Context\TokenWhiteList
-       arguments: [@service_container] 
+       arguments: ["@service_container"] 
        scope: prototype
        
 #    security_right_profiler:
@@ -26,7 +26,7 @@ services:
         class: Core\SecurityBundle\EventListener\AccessDeniedListener
         tags:
             - { name: kernel.event_listener, event: kernel.exception, method: onKernelException }
-        arguments: [@service_container] 
+        arguments: ["@service_container"] 
         
 #    deprecated: Replaced by security_listener
 #    some_annotation_driver:
